@@ -1,5 +1,5 @@
 import { DataFunctionArgs } from '@remix-run/node'
-import { Form, useLoaderData, useActionData, useSubmit } from '@remix-run/react'
+import { Form, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
 import { db } from '~/utilities/database'
 import { useCallback, useEffect, useState } from 'react'
 import { randomDelayBetween } from '~/utilities/delay'
@@ -15,7 +15,7 @@ import Delete from '../../icon/Delete'
 import Edit from '../../icon/Edit'
 import { Button } from '~/components/atoms/Button'
 import { useFocus } from '~/hooks/useFocus'
-import { ControlledInput } from '~/components/atoms/ControlledInput'
+import { useFormReset } from '~/hooks/useFormReset'
 
 export const loader = async () => {
   return db.load().filter(i => !i.completed && !i.deleted)
@@ -75,12 +75,17 @@ export default function Index() {
   const actionResult = useActionData<typeof action>()
 
   const [editTodo, setEditTodo] = useState<Todo>()
-  const [addFormCount, setAddFormCount] = useState(1)
-  const clearEdit = useCallback(() => setEditTodo(undefined), [setEditTodo])
+  const [formRef, resetForm] = useFormReset()
   const [inputRef, setInputFocus] = useFocus<HTMLInputElement>()
+
   useEffect(() => {
     setInputFocus()
   }, [editTodo])
+
+  const clearEdit = useCallback(() => {
+    setEditTodo(undefined)
+    resetForm()
+  }, [setEditTodo])
 
   const loadingContext = useLoadingContext()
   const submit = useSubmit()
@@ -167,28 +172,26 @@ export default function Index() {
           ))}
         </Panel>
         <Form
-          key={editTodo?.id ?? `add-form-${addFormCount}`}
           replace
-          onSubmit={() => {
-            setTimeout(() => {
-              clearEdit()
-              setAddFormCount(addFormCount + 1)
-            })
+          ref={formRef}
+          onSubmit={e => {
+            setTimeout(clearEdit)
           }}
           method='post'
         >
           <input type='hidden' name='id' value={editTodo?.id.toString()} />
           <div className='mt-2 py-3 px-4 grid grid-flow-col auto-cols-[1fr_200px] gap-2 items-start'>
-            <ControlledInput
+            <input
               type='text'
               ref={inputRef}
-              className='p-2 border'
+              className={cn('p-2 border', 'w-full', 'rounded-md', 'text-black')}
               aria-label='To-do description'
               placeholder='Todo description'
               name='description'
-              value={editTodo?.description}
+              defaultValue={editTodo?.description ?? ''}
               disabled={loadingContext.isLoading}
             />
+
             <Button
               className='text-black'
               type='submit'
