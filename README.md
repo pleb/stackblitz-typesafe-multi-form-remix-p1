@@ -1,3 +1,3 @@
-# stackblitz-typesafe-multi-form-remix-p1
+# Building a typesafe multi-form action handler in Remix series - The problem
 
-[Edit on StackBlitz ⚡️](https://stackblitz.com/edit/node-um2qsj)
+[Edit or run on StackBlitz ⚡️](https://stackblitz.com/edit/node-um2qsj)
