@@ -1,4 +1,4 @@
-// global.cache is needed before of how remix local dev works
+// global.cache is needed because of how remix local dev works
 // see https://remix.run/docs/en/v1/other-api/serve
 declare module global {
   let db: TodoItem[]
