@@ -1,4 +1,5 @@
-import { DataFunctionArgs } from '@remix-run/node'
+import type { MetaFunction } from '@remix-run/node'
+import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, useActionData, useLoaderData, useSubmit } from '@remix-run/react'
 import { db } from '~/utilities/database'
 import { useCallback, useEffect, useState } from 'react'
@@ -8,22 +9,33 @@ import { Title } from '~/components/atoms/Title'
 import { GlassPanel } from '~/components/molecules/GlassPanel'
 import { Panel } from '~/components/atoms/Panel'
 import { useLoadingContext } from '~/contexts/loadingContext'
-import Loading from 'icon/LoadingIndicator'
+import Loading from '~/icons/LoadingIndicator'
 import { cn } from '~/utilities/cn'
 import { IconButton } from '~/components/molecules/IconButton'
-import Delete from '../../icon/Delete'
-import Edit from '../../icon/Edit'
+import Delete from '~/icons/Delete'
+import Edit from '~/icons/Edit'
 import { Button } from '~/components/atoms/Button'
 import { useFocus } from '~/hooks/useFocus'
 import { useFormReset } from '~/hooks/useFormReset'
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Simple to-do tracking application' },
+    {
+      name: 'description',
+      content:
+        'Simple to-do application is a collection of to-do entries that can be completed, edited or deleted',
+    },
+  ]
+}
 
 export const loader = async () => {
   return db.load().filter(i => !i.completed && !i.deleted)
 }
 
-export const action = async ({ request }: DataFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   // Simulate network latency
-  await randomDelayBetween(250, 1000)
+  await randomDelayBetween(50, 250)
 
   const formData = await request.formData()
   const { _action, ...values } = Object.fromEntries(formData.entries())
@@ -31,7 +43,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
   switch (_action) {
     case 'reset':
       {
-        await db.populateSample()
+        db.populateSample()
       }
       break
     case 'delete': {
@@ -80,12 +92,12 @@ export default function Index() {
 
   useEffect(() => {
     setInputFocus()
-  }, [editTodo])
+  }, [editTodo, setInputFocus])
 
   const clearEdit = useCallback(() => {
     setEditTodo(undefined)
     resetForm()
-  }, [setEditTodo])
+  }, [setEditTodo, resetForm])
 
   const loadingContext = useLoadingContext()
   const submit = useSubmit()
@@ -133,7 +145,7 @@ export default function Index() {
                 >
                   {todo.description}
                 </div>
-                {!Boolean(editTodo) && (
+                {!editTodo && (
                   <div className='w-30 justify-self-end grid gap-2 grid-flow-col content-center'>
                     <IconButton
                       id={`delete-${todo.id}`}
@@ -174,7 +186,7 @@ export default function Index() {
         <Form
           replace
           ref={formRef}
-          onSubmit={e => {
+          onSubmit={() => {
             setTimeout(clearEdit)
           }}
           method='post'
