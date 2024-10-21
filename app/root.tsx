@@ -7,7 +7,7 @@ import {
   useNavigation,
 } from '@remix-run/react'
 import type { LinksFunction } from '@remix-run/node'
-import { LoadingContext } from '~/contexts/loadingContext'
+import { LoadingContext } from '~/contexts/loading-context'
 import { ReactNode } from 'react'
 
 import './styles/app.css'
