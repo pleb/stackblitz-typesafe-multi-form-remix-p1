@@ -35,7 +35,7 @@ export const loader = async () => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   // Simulate network latency
-  await randomDelayBetween(50, 250)
+  await randomDelayBetween(50, 350)
 
   const formData = await request.formData()
   const { _action, ...values } = Object.fromEntries(formData.entries())
