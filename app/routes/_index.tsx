@@ -100,6 +100,11 @@ export default function Index() {
   }, [setEditTodo, resetForm])
 
   const loadingContext = useLoadingContext()
+
+  useEffect(() => {
+    if (!loadingContext.isLoading) setInputFocus()
+  }, [loadingContext.isLoading, setInputFocus])
+
   const submit = useSubmit()
 
   return (
